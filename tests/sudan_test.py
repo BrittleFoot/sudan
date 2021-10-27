@@ -1,25 +1,13 @@
 import pytest
 
-import sudan
- 
-from pathlib import Path
-
 from sudan.annotation import Annotation
 
 
 @pytest.fixture
-def test_annotation(pytestconfig) -> Path:
-    return pytestconfig.rootpath / 'tests' / 'test_annotation'
-
-
-@pytest.fixture
-def coli_fasta(pytestconfig) -> Path:
-    return pytestconfig.rootpath / 'tests' / 'coli-complete-genome.fna'
-
-
-@pytest.fixture
-def annotation(coli_fasta, test_annotation) -> Annotation:
-    return Annotation.initialze(test_annotation, coli_fasta)
+def annotation(pytestconfig) -> Annotation:
+    ann = pytestconfig.rootpath / 'tests' / 'test_annotation'
+    fna = pytestconfig.rootpath / 'tests' / 'coli-complete-genome.fna'
+    return Annotation.initialze(ann, fna)
 
 
 def test_prepare_annotation(annotation: Annotation):

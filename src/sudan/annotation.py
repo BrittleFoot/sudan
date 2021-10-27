@@ -17,6 +17,9 @@ from sudan.tools import Toolkit
 log = getLogger('init')
 
 
+Features = Dict[str, List[SeqFeature]]
+
+
 class Annotation:
     def __init__(self, basedir: Path, records: Dict[str, SeqRecord], total_bp):
         self.basedir = basedir
@@ -33,6 +36,12 @@ class Annotation:
 
     def features(self, seq_id) -> List[SeqFeature]:
         return self[seq_id].features
+
+    def add_features(self, features: Features):
+        for id, fs in features.items():
+            features = self[id].features
+            for feature in fs:
+                features.append(feature)
 
     @property
     def features_count(self) -> int:

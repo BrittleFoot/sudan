@@ -1,6 +1,6 @@
 import re
 
-from os import popen
+from os import popen, system
 from logging import getLogger
 from dataclasses import dataclass
 from distutils.spawn import find_executable
@@ -49,7 +49,7 @@ class Tool:
 
 class Toolkit:
 
-    def __lazy_init_tool(self, name):
+    def __lazy_init_tool(self, name) -> Tool:
         utn = '__' + name
         if hasattr(self, utn):
             return getattr(self, utn)
@@ -79,8 +79,6 @@ class Toolkit:
                 continue
             # warm'em up
             getattr(self, name)
-
-
 
 
 class _Toolkit:
@@ -131,10 +129,14 @@ class _Toolkit:
     )
     signalp = _Tool(
         SIGNALP,
-        # this is so long-winded as -v changed meaning (3.0=version, 4.0=verbose !?)
-        "if [ \"`signalp -version 2>&1 | grep -Eo '[0-9]+\.[0-9]+'`\" != \"\" ]; "
-        "then echo `signalp -version 2>&1 | grep -Eo '[0-9]+\.[0-9]+'`; "
-        "else signalp -v < /dev/null 2>&1 | egrep ',|# SignalP' | sed 's/^# SignalP-//'; fi",
+        # this is so long-winded as -v changed meaning 
+        # (3.0=version, 4.0=verbose !?)
+        "if [ \"`signalp -version 2>&1 | "
+        "grep -Eo '[0-9]+\.[0-9]+'`\" != \"\" ]; "
+        "then echo `signalp -version 2>&1 | "
+        "grep -Eo '[0-9]+\.[0-9]+'`; "
+        "else signalp -v < /dev/null 2>&1 | egrep ',|# SignalP' | "
+        "sed 's/^# SignalP-//'; fi",
         re.compile(rf'^{BIDEC}'),
         "3.0",
         False
@@ -231,3 +233,19 @@ def _check_tool(tool):
 
     return True, s_version
 
+
+class ToolRunException(Exception):
+    def __init__(self, code, cmd):
+        super().__init__(f'[{code}] {cmd}')
+
+
+def run_tool(cmd, nofail=False):
+    log.info('$ ' + cmd)
+    err = system(cmd)
+    if nofail == True:
+        return err
+
+    if err != 0:
+        raise ToolRunException(err, cmd)
+
+    return err

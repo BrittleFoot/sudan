@@ -6,15 +6,23 @@ from typing import Dict, Generator
 from typing import List
 from typing import NamedTuple
 from Bio.SeqFeature import SeqFeature
+from Bio.SeqFeature import FeatureLocation
 
+from sudan import Config
+from sudan.tools import run_tool
 from sudan.annotation import Annotation, Features
 
 
 log = getLogger('sudan.aragorn')
 
+StrGenerator = Generator[str, None, None]
+
 
 def run(annotation: Annotation) -> Path:
-    pass
+    out = annotation.basedir / 'aragorn.out'
+    run_tool(f'aragorn -l -gc11 -w {annotation.source_fasta} -o {out}')
+
+    return out
 
 
 class TrnaRecord(NamedTuple):
@@ -29,13 +37,17 @@ def deeplen(iterable):
     return sum(map(len, iterable.values()))
 
 
-def parse(prog_out: Generator[str, None, None]) -> Features:
+def parse(annotation: Annotation, prog_out: StrGenerator) -> Features:
+    aragorn = annotation.tools.aragorn
     re_coords = re.compile(r'(c)?\[-?(\d+),(\d+)\]')
 
     contig_id = None
     features = {}
 
     for line in map(str.strip, prog_out):
+        if line.startswith('>end'):
+            break
+
         if line.startswith('>'):
             contig_id = line[1:]
             features[contig_id] = []
@@ -65,13 +77,16 @@ def parse(prog_out: Generator[str, None, None]) -> Features:
             continue
 
         start = max(start, 1)
-        min(end, len(context.CONTIG[contig_id].seq))
+        min(end, len(annotation[contig_id].seq))
 
-        if abs(end-start) > MAX_TRNA_LEN:
-            log.debug(f'tRNA {record.pos} is too big (>{MAX_TRNA_LEN}) - skipping.')
+        if abs(end-start) > Config.MAX_TRNA_LEN:
+            log.debug(
+                f'tRNA {record.pos} is too big '
+                f'(>{Config.MAX_TRNA_LEN}) - skipping.'
+            )
             continue
 
-        tool = 'Aragorgn:' + aragorn.version
+        tool = 'Aragorgn:' + str(aragorn.version)
 
         ftype = 'tRNA'
         product = record.name + record.codon

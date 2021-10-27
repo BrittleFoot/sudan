@@ -18,13 +18,12 @@ from subprocess import PIPE
 from subprocess import Popen
 from collections import namedtuple
 
-from log import logging
-from cli import parse_args
-from cache import Cache
-from tools import check_all_tools
-from tools import Tool
-from utilities import IOWrapper
-from utilities import ToolExecutionError
+from sudan.cli import parse_args
+from sudan.cache import Cache
+from sudan.tools import check_all_tools
+from sudan.tools import Tool
+from sudan.utilities import IOWrapper
+from sudan.utilities import ToolExecutionError
 
 
 log = logging.getLogger('sudan')

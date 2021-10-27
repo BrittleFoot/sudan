@@ -11,7 +11,6 @@ def annotation(pytestconfig) -> Annotation:
     return Annotation.initialze(ann, fna)
 
 
-
 def test_run(annotation: Annotation):
     out = run(annotation)
 

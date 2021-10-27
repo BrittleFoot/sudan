@@ -22,6 +22,7 @@ def run(annotation: Annotation) -> Path:
     out = annotation.basedir / 'aragorn.out'
     run_tool(f'aragorn -l -gc11 -w {annotation.source_fasta} -o {out}')
 
+    annotation.tool_out[annotation.tools.aragorn.name] = out
     return out
 
 
@@ -57,15 +58,15 @@ def parse(annotation: Annotation, prog_out: StrGenerator) -> Features:
         if len(data) != 5 or not re.match(r'\d+', data[0]):
             continue
 
-        record = TrnaRecord(*data)
+        _, name, pos, _, codon = data
 
-        if '?' in record.name:
-            log.debug(f'tRNA {record.pos} is a pseudo/wacky gene - skipping')
+        if '?' in name:
+            log.debug(f'tRNA {pos} is a pseudo/wacky gene - skipping')
             continue
 
-        match = re_coords.match(record.pos)
+        match = re_coords.match(pos)
         if not match:
-            log.debug(f'Invalid position format {record}')
+            log.debug(f'Invalid position format {pos}')
         revcom, start, end = match.groups()
 
         start = int(start)
@@ -73,7 +74,7 @@ def parse(annotation: Annotation, prog_out: StrGenerator) -> Features:
         strand = -1 if revcom else +1
 
         if start > end:
-            log.debug(f'tRNA {record.pos} has start > end - skipping.')
+            log.debug(f'tRNA {pos} has start > end - skipping.')
             continue
 
         start = max(start, 1)
@@ -81,7 +82,7 @@ def parse(annotation: Annotation, prog_out: StrGenerator) -> Features:
 
         if abs(end-start) > Config.MAX_TRNA_LEN:
             log.debug(
-                f'tRNA {record.pos} is too big '
+                f'tRNA {pos} is too big '
                 f'(>{Config.MAX_TRNA_LEN}) - skipping.'
             )
             continue
@@ -89,10 +90,10 @@ def parse(annotation: Annotation, prog_out: StrGenerator) -> Features:
         tool = 'Aragorgn:' + str(aragorn.version)
 
         ftype = 'tRNA'
-        product = record.name + record.codon
+        product = name + codon
         gene = {}
 
-        if 'tmRNA' in record.name:
+        if 'tmRNA' in name:
             ftype = 'tmRNA'
             product = 'transfer-messenger RNA, SsrA'
             gene = {'gene': 'ssrA'}
@@ -105,7 +106,7 @@ def parse(annotation: Annotation, prog_out: StrGenerator) -> Features:
 
         features[contig_id].append(SeqFeature(
             FeatureLocation(start, end, strand),
-            id=f'{record.num} {product}',
+            id=f'{product}',
             type=ftype,
             strand=strand,
             qualifiers=qualifiers

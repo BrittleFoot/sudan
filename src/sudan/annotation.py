@@ -26,6 +26,7 @@ class Annotation:
         self.total_bp = total_bp
         self.records = records
         self.tools = Toolkit()
+        self.tool_out = {}
 
         self.source_fasta = basedir / 'source.fasta'
         SeqIO.write(records.values(), self.source_fasta, Config.FORMAT_FASTA)

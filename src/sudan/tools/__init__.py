@@ -132,9 +132,9 @@ class _Toolkit:
         # this is so long-winded as -v changed meaning 
         # (3.0=version, 4.0=verbose !?)
         "if [ \"`signalp -version 2>&1 | "
-        "grep -Eo '[0-9]+\.[0-9]+'`\" != \"\" ]; "
+        "grep -Eo '[0-9]+\\.[0-9]+'`\" != \"\" ]; "
         "then echo `signalp -version 2>&1 | "
-        "grep -Eo '[0-9]+\.[0-9]+'`; "
+        "grep -Eo '[0-9]+\\.[0-9]+'`; "
         "else signalp -v < /dev/null 2>&1 | egrep ',|# SignalP' | "
         "sed 's/^# SignalP-//'; fi",
         re.compile(rf'^{BIDEC}'),

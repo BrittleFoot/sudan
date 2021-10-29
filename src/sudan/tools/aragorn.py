@@ -10,6 +10,7 @@ from Bio.SeqFeature import FeatureLocation
 
 from sudan import Config
 from sudan.tools import run_tool
+from sudan.utilities import deeplen
 from sudan.annotation import Annotation, Features
 
 
@@ -32,10 +33,6 @@ class TrnaRecord(NamedTuple):
     pos: str
     nums: str
     codon: str
-
-
-def deeplen(iterable):
-    return sum(map(len, iterable.values()))
 
 
 def parse(annotation: Annotation, prog_out: StrGenerator) -> Features:

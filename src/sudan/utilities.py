@@ -1,7 +1,15 @@
+"""
+    Common functions and tools
+"""
+
+
+def deeplen(iterable):
+    return sum(map(len, iterable.values()))
 
 
 class IOWrapper:
     """ wraps iterator with io buffer - like methods
+    Handy to use with GFF parser if you do not have IO buffer.
     """
 
     def __init__(self, obj):
@@ -18,11 +26,3 @@ class IOWrapper:
 
     def close(self):
         pass
-
-
-class ToolExecutionError(Exception):
-
-    def __init__(self, name, error):
-        self.name = name
-        self.error = error
-        super().__init__(f'{self.name} error: {self.error}')

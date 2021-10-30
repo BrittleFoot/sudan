@@ -27,6 +27,7 @@ class Annotation:
         self.records = records
         self.tools = Toolkit()
         self.tool_out = {}
+        self.all_rna = []
 
         self.source_fasta = basedir / 'source.fasta'
         SeqIO.write(records.values(), self.source_fasta, Config.FORMAT_FASTA)

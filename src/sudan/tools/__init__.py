@@ -77,6 +77,10 @@ class Toolkit:
     def cmscan(self) -> Tool:
         return self.__lazy_init_tool(CMSCAN)
 
+    @property
+    def minced(self) -> Tool:
+        return self.__lazy_init_tool(MINCED)
+
     def init_all(self):
         for name in Toolkit.__dict__:
             if name.startswith('_') or name != 'init_all':

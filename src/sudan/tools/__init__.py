@@ -73,6 +73,10 @@ class Toolkit:
     def barrnap(self) -> Tool:
         return self.__lazy_init_tool(BARRNAP)
 
+    @property
+    def cmscan(self) -> Tool:
+        return self.__lazy_init_tool(CMSCAN)
+
     def init_all(self):
         for name in Toolkit.__dict__:
             if name.startswith('_') or name != 'init_all':

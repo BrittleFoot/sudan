@@ -16,7 +16,7 @@ log = getLogger('sudan.barrnap')
 StrGenerator = Generator[str, None, None]
 
 def run(annotation: Annotation) -> Path:
-    out = annotation.basedir / 'barrnap.out'
+    out = annotation.basedir / 'barrnap.out.gff'
 
     # todo: parametrize kingdom, threads, etc using sudan.Config
     run_tool(f'barrnap --kingdom bac --threads 8 --quiet {annotation.source_fasta} > {out}')

@@ -18,7 +18,7 @@ def run(annotation: Annotation) -> Path:
         log.warning('Skipping search for CRISPR repeats. Install minced to enable.')
         return
     run_tool(f'minced -gff {annotation.source_fasta} {out}')
-    annotation.tool_out[annotation.tools.barrnap.name] = out
+    annotation.tool_out[annotation.tools.minced.name] = out
     return out
 
 def parse(annotation: Annotation, prog_out: StrGenerator) -> Features:

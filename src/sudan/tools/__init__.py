@@ -81,6 +81,10 @@ class Toolkit:
     def minced(self) -> Tool:
         return self.__lazy_init_tool(MINCED)
 
+    @property
+    def prodigal(self) -> Tool:
+        return self.__lazy_init_tool(PRODIGAL)
+
     def init_all(self):
         for name in Toolkit.__dict__:
             if name.startswith('_') or name != 'init_all':

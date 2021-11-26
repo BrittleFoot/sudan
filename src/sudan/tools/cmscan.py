@@ -4,7 +4,6 @@ from typing import Generator
 from Bio.SeqFeature import SeqFeature
 from Bio.SeqFeature import FeatureLocation
 from subprocess import PIPE
-from subprocess import run as run_shell
 from BCBio import GFF
 
 from sudan.tools import run_tool
@@ -18,15 +17,16 @@ StrGenerator = Generator[str, None, None]
 def run(annotation: Annotation) -> Path:
     icpu = 8 | 1
     dbsize = annotation.total_bp * 2 / 10e6
-    process = run_shell('find ~ -wholename */db/cm/Bacteria', shell=True, check=True, stdout=PIPE, universal_newlines=True)
-    output = process.stdout
-    cmdb = output.split('\n')[0]
+    cmdb = f'{annotation.dbdir}/cm/{annotation.kingdom}' #cmpress
+    cmpress_cmd = f'cmpress {cmdb}'
+    run_tool(cmpress_cmd)
     out = annotation.basedir / 'cmscan.out'
     print(cmdb)
     cmd = f"cmscan -Z {dbsize} --cut_ga --rfam --nohmmonly --fmt 2 --cpu {icpu}" + \
           f" --tblout {out} --noali {cmdb} {annotation.source_fasta}"
     run_tool(cmd)
     annotation.tool_out[annotation.tools.barrnap.name] = out
+    delete_db = f'rm {cmdb}.i1*'
     return out
 
 def parse(annotation: Annotation, prog_out: StrGenerator) -> Features:
@@ -62,7 +62,7 @@ def parse(annotation: Annotation, prog_out: StrGenerator) -> Features:
 
         start = min(map(int, [data[9], data[10]]))
         end = max(map(int, [data[9], data[10]]))
-        strand = +1 if data[11] == '-' else +1
+        strand = -1 if data[11] == '-' else +1
 
         features[contig_id].append(SeqFeature(
             FeatureLocation(start, end, strand),

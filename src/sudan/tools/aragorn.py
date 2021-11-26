@@ -8,7 +8,6 @@ from typing import NamedTuple
 from Bio.SeqFeature import SeqFeature
 from Bio.SeqFeature import FeatureLocation
 
-from sudan import Config
 from sudan.tools import run_tool
 from sudan.utilities import deeplen
 from sudan.annotation import Annotation, Features
@@ -77,10 +76,10 @@ def parse(annotation: Annotation, prog_out: StrGenerator) -> Features:
         start = max(start, 1)
         min(end, len(annotation[contig_id].seq))
 
-        if abs(end-start) > Config.MAX_TRNA_LEN:
+        if abs(end-start) > 500:
             log.debug(
                 f'tRNA {pos} is too big '
-                f'(>{Config.MAX_TRNA_LEN}) - skipping.'
+                f'(>500) - skipping.'
             )
             continue
 

@@ -1,4 +1,5 @@
 import re
+import os
 
 from typing import Dict
 from typing import List
@@ -10,7 +11,6 @@ from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
 from Bio.SeqFeature import SeqFeature
 
-from sudan import Config
 from sudan.tools import Toolkit
 
 
@@ -28,9 +28,12 @@ class Annotation:
         self.tools = Toolkit()
         self.tool_out = {}
         self.all_rna = []
+        self.metagenome = 0 
+        self.kingdom = ''
+        self.dbdir = os.path.abspath('src/sudan/sudan_db')
 
         self.source_fasta = basedir / 'source.fasta'
-        SeqIO.write(records.values(), self.source_fasta, Config.FORMAT_FASTA)
+        SeqIO.write(records.values(), self.source_fasta, 'fasta')
         log.info(f'Writing source fasta to {self.source_fasta}')
 
     def __getitem__(self, seq_id: str) -> SeqRecord:
@@ -54,7 +57,7 @@ class Annotation:
         on_base_dir.mkdir(parents=True, exist_ok=True)
         log.info(f'Initializing annotation in {on_base_dir}')
 
-        seqs = SeqIO.parse(from_fasta_file, Config.FORMAT_FASTA)
+        seqs = SeqIO.parse(from_fasta_file, 'fasta')
         records, total_bp = _prepare_sequences(seqs)
         return cls(on_base_dir, records, total_bp)
 
@@ -90,7 +93,7 @@ def _prepare_sequences(seq_iterator: Generator[SeqRecord, None, None]):
     total_bp = 0
     records = {}
     for contig in seq_iterator:
-        if len(contig.seq) < Config.MIN_CONTIG_LEN:
+        if len(contig.seq) < 200:
             log.debug(f'Skipping short contig {contig.id}')
             continue
 

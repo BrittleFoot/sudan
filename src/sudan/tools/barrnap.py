@@ -15,11 +15,24 @@ log = getLogger('sudan.barrnap')
 
 StrGenerator = Generator[str, None, None]
 
+def _mode(kingdom):
+    if kingdom == 'Archaea':
+        return 'arc'
+    elif kingdom == 'Bacteria':
+        return 'bac'
+    elif kingdom == 'Mitochondria':
+        return 'mito'
+    else:
+        return ''
+
+
 def run(annotation: Annotation) -> Path:
     out = annotation.basedir / 'barrnap.out.gff'
 
     # todo: parametrize kingdom, threads, etc using sudan.Config
-    run_tool(f'barrnap --kingdom bac --threads 8 --quiet {annotation.source_fasta} > {out}')
+    mode = _mode(annotation.cfg.kingdom)
+    thr = annotation.cfg.cpus
+    run_tool(f'barrnap --kingdom {mode} --threads {thr} --quiet {annotation.source_fasta} > {out}')
     
     annotation.tool_out[annotation.tools.barrnap.name] = out
     return out

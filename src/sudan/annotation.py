@@ -1,6 +1,8 @@
 import re
 import os
 
+import sudan
+
 from typing import Dict
 from typing import List
 from typing import Generator
@@ -10,6 +12,7 @@ from Bio import SeqIO
 from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
 from Bio.SeqFeature import SeqFeature
+from sudan.cli import Arguments
 
 from sudan.tools import Toolkit
 
@@ -22,15 +25,16 @@ Features = Dict[str, List[SeqFeature]]
 
 class Annotation:
     def __init__(self, basedir: Path, records: Dict[str, SeqRecord], total_bp):
+        sudan.set_log_file(basedir)
+
         self.basedir = basedir
         self.total_bp = total_bp
         self.records = records
         self.tools = Toolkit()
         self.tool_out = {}
         self.all_rna = []
-        self.metagenome = 0 
-        self.kingdom = ''
-        self.dbdir = os.path.abspath('src/sudan/sudan_db')
+        self.cfg = Arguments()
+        self.dbdir = sudan.get_db_path()
 
         self.source_fasta = basedir / 'source.fasta'
         SeqIO.write(records.values(), self.source_fasta, 'fasta')
@@ -47,6 +51,10 @@ class Annotation:
             features = self[id].features
             for feature in fs:
                 features.append(feature)
+
+    def seutp(self, args: Arguments):
+        self.cfg = args
+
 
     @property
     def features_count(self) -> int:

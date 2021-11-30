@@ -15,18 +15,23 @@ log = getLogger('sudan.cmscan')
 StrGenerator = Generator[str, None, None]
 
 def run(annotation: Annotation) -> Path:
-    icpu = 8 | 1
+    cpu = annotation.cfg.cpus
     dbsize = annotation.total_bp * 2 / 10e6
-    cmdb = f'{annotation.dbdir}/cm/{annotation.kingdom}' #cmpress
+    cmdb = f'{annotation.dbdir}/cm/{annotation.cfg.kingdom}' #cmpress
     cmpress_cmd = f'cmpress {cmdb}'
+
+    delete_db = f'rm {cmdb}.i1*'
+    run_tool(delete_db)
+
     run_tool(cmpress_cmd)
+
     out = annotation.basedir / 'cmscan.out'
     print(cmdb)
-    cmd = f"cmscan -Z {dbsize} --cut_ga --rfam --nohmmonly --fmt 2 --cpu {icpu}" + \
-          f" --tblout {out} --noali {cmdb} {annotation.source_fasta}"
+    
+    cmd = f"cmscan -Z {dbsize} --cut_ga --rfam --nohmmonly --fmt 2 --cpu {cpu}" + \
+          f" --verbose --tblout {out} --noali {cmdb} {annotation.source_fasta}"
     run_tool(cmd)
-    annotation.tool_out[annotation.tools.barrnap.name] = out
-    delete_db = f'rm {cmdb}.i1*'
+    annotation.tool_out[annotation.tools.cmscan.name] = out
     return out
 
 def parse(annotation: Annotation, prog_out: StrGenerator) -> Features:

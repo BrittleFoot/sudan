@@ -21,18 +21,22 @@ def run(annotation: Annotation) -> Path:
     annotation.tool_out[annotation.tools.minced.name] = out
     return out
 
+
+def _add_qualifiers(feature):
+    n_repears = feature.qualifiers['score'][0]
+    feature.qualifiers['note'] = f'CRISPR with {n_repears} repeat units'
+    if 'rpt_family' not in feature.qualifiers:
+        feature.qualifiers['rpt_family'] = 'CRISPR'
+    if 'rpt_type' not in feature.qualifiers:
+        feature.qualifiers['rpt_type'] = 'direct'
+
+
 def parse(annotation: Annotation, prog_out: StrGenerator) -> Features:
     features = {}
     for record in GFF.parse(prog_out):
         features[record.id] = []
         for feature in record.features:
-            n_repears = feature.qualifiers['score'][0]
-            feature.qualifiers['note'] = f'CRISPR with {n_repears} repeat units'
-            if 'rpt_family' not in feature.qualifiers:
-                features.qualifiers['rpt_family'] = 'CRISPR'
-            if 'rpt_type' not in feature.qualifiers:
-                features.qualifiers['rpt_type'] = 'direct'
-
+            _add_qualifiers(feature)  
             features[record.id].append(feature)
             annotation.all_rna.append(feature)
 

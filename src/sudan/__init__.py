@@ -3,7 +3,6 @@ import logging
 from distutils.sysconfig import get_python_lib
 from pathlib import Path
 
-import sudan
 from sudan.annotation import Annotation, Features
 from sudan.tools import aragorn, barrnap, cmscan, minced, prodigal, run_tool
 from sudan.cli import parse_args
@@ -13,16 +12,13 @@ logging.basicConfig(format=FORMAT)
 logger = logging.getLogger('sudan')
 
 
-
-class Config:
-
-    FORMAT_FASTA = 'fasta'
-    MIN_CONTIG_LEN = 200
-    MAX_TRNA_LEN = 500
-
-    kingdom = 'Bacteria'
-    
-
+def set_log_file(out_folder: Path):
+    logging.basicConfig(
+        filename=out_folder / 'sudan.log',
+        filemode='a',
+        format=FORMAT,
+        level=logging.DEBUG
+    )
 
 
 def get_db_path():
@@ -35,8 +31,6 @@ def get_db_path():
         logger.error(f'{db_dir} is not a database dir, something wrong!')
 
     return db_dir
-       
-
 
 
 def main():
@@ -44,6 +38,7 @@ def main():
     print(f'Although we found a database dir in {get_db_path()}')
     args = parse_args()
     annotation = Annotation.initialze(Path(args.output_dir), Path(args.input_file))
+    annotation.setup(args)
     annotation.kingdom = args.kingdom
     out = aragorn.run(annotation)
     with open(out, 'r') as fd:
